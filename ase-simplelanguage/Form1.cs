@@ -24,6 +24,7 @@ namespace ase_simplelanguage
         // bitmap to draw, using size constants defined above
         Bitmap Outputbmp = new Bitmap(bmpX, bmpY);
 
+        // loading a canvas
         Canvas MyCanvas;
 
         public Form1()
@@ -55,6 +56,10 @@ namespace ase_simplelanguage
                 {
                     MyCanvas.EditPen(255, 255, 255, 4);
                     Console.WriteLine("pen");
+                } else if (cmd.Equals("tri"))
+                {
+                    MyCanvas.DrawTriangle(0, 100, 50);
+                    Console.WriteLine("triangle");
                 }
                 
                 cmdTextBox.Text = "";
