@@ -11,7 +11,7 @@ namespace ase_simplelanguage
     /// <summary>
     /// Canvas class stores methods for drawing to a bitmap
     /// </summary>
-    class Canvas
+    public class Canvas
     {
         // initialise drawing area (graphics)
         Graphics gfx;
@@ -45,7 +45,7 @@ namespace ase_simplelanguage
         /// <param name="rad"> Radius of the circle (in pixels)</param>
         public void DrawCircle(int rad)
         {
-            gfx.DrawEllipse(pen, xPos, yPos, xPos + (rad * 2), yPos + (rad * 2));
+            gfx.DrawEllipse(pen, xPos, yPos, (rad * 2), (rad * 2));
         }
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace ase_simplelanguage
         /// <param name="size">Size of the square (in pixels)</param>
         public void DrawSquare(int size)
         {
-            gfx.DrawRectangle(pen, xPos, yPos, xPos + size, yPos + size);
+            gfx.DrawRectangle(pen, xPos, yPos, size, size);
         }
     }
 }
