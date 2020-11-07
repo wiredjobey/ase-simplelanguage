@@ -19,41 +19,86 @@ namespace ase_simplelanguage
                 string command = splitLine[0];
                 string[] parameters = splitLine[1].Split(',');
 
-                int[] paramsInt = new int[parameters.Length];
-
-                for (int i = 0; i < parameters.Length; i++)
+                if (!splitLine[1].Any(char.IsDigit))
                 {
-                    paramsInt[i] = int.Parse(parameters[i]);
-                }
-
-                switch (command)
+                    switch (command)
+                    {
+                        case "pen":
+                            if(parameters.Length == 1)
+                            {
+                                MyCanvas.Colour(parameters[0]);
+                            }
+                            break;
+                        case "fill":
+                            if(parameters.Length == 1)
+                            {
+                                if (parameters[0] == "on")
+                                {
+                                    MyCanvas.PenFill(true);
+                                } else if (parameters[0] == "off")
+                                {
+                                    MyCanvas.PenFill(false);
+                                }
+                            }
+                            break;
+                    }
+                } 
+                else
                 {
-                    case "drawto":
-                        if (paramsInt.Length == 2)
-                        {
-                            MyCanvas.DrawLine(paramsInt[0], paramsInt[1]);
-                        }
+                    int[] paramsInt = new int[parameters.Length];
+
+                    for (int i = 0; i < parameters.Length; i++)
+                    {
+                        paramsInt[i] = int.Parse(parameters[i]);
+                    }
+
+                    switch (command)
+                    {
+                        case "moveto":
+                            if (paramsInt.Length == 2)
+                            {
+                                MyCanvas.MoveTo(paramsInt[0], paramsInt[1]);
+                            }
+                            break;
+                        case "drawto":
+                            if (paramsInt.Length == 2)
+                            {
+                                MyCanvas.DrawLine(paramsInt[0], paramsInt[1]);
+                            }
+                            break;
+                        case "triangle":
+                            if (paramsInt.Length == 3)
+                            {
+                                MyCanvas.DrawTriangle(paramsInt[0], paramsInt[1], paramsInt[2]);
+                            }
+                            break;
+                        case "square":
+                            if (paramsInt.Length == 1)
+                            {
+                                MyCanvas.DrawRectangle(paramsInt[0], paramsInt[0]);
+                            }
+                            break;
+                        case "circle":
+                            if (paramsInt.Length == 1)
+                            {
+                                MyCanvas.DrawCircle(paramsInt[0]);
+                            }
+                            break;
+                    }
+                }
+            }
+            else
+            {
+                switch(line)
+                {
+                    case "clear":
+                        MyCanvas.Clear();
                         break;
-                    case "triangle":
-                        if (paramsInt.Length == 3)
-                        {
-                            MyCanvas.DrawTriangle(paramsInt[0], paramsInt[1], paramsInt[2]);
-                        }
-                        break;
-                    case "square":
-                        if (paramsInt.Length == 1)
-                        {
-                            MyCanvas.DrawSquare(paramsInt[0]);
-                        }
-                        break;
-                    case "circle":
-                        if (paramsInt.Length == 1)
-                        {
-                            MyCanvas.DrawCircle(paramsInt[0]);
-                        }
+                    case "reset":
+                        MyCanvas.MoveTo(0, 0);
                         break;
                 }
-            } 
+            }
         }
     }
 }

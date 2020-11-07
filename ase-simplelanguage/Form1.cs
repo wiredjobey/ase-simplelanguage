@@ -35,6 +35,51 @@ namespace ase_simplelanguage
             MyCanvas = new Canvas(Graphics.FromImage(Outputbmp), penColour, penSize);
         }
 
+        private void newToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            edTextBox.Clear();
+            MyCanvas.Clear();
+            Refresh();
+        }
+
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Create a SaveFileDialog to request a path and file name to save to.
+            SaveFileDialog saveFile = new SaveFileDialog();
+
+            // Initialize the SaveFileDialog to specify the RTF extension for the file.
+            saveFile.FileName = "program";
+            saveFile.DefaultExt = "txt";
+            saveFile.Filter = "Text files (*.txt)|*.txt";
+            saveFile.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+            DialogResult result = saveFile.ShowDialog();
+
+            // Determine if the user selected a file name from the saveFileDialog.
+            if (result == System.Windows.Forms.DialogResult.OK && saveFile.FileName.Length > 0)
+            {
+                // Save the contents of the RichTextBox into the file.
+                edTextBox.SaveFile(saveFile.FileName, RichTextBoxStreamType.PlainText);
+            }
+        }
+
+        private void openToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Create an OpenFileDialog to request a file to open.
+            OpenFileDialog openFile = new OpenFileDialog();
+
+            // Initialize the OpenFileDialog to look for RTF files.
+            openFile.DefaultExt = "*.txt";
+            openFile.Filter = "Text Files (*.txt)|*.txt";
+
+            // Determine whether the user selected a file from the OpenFileDialog.
+            if (openFile.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                // Load the contents of the file into the RichTextBox.
+                edTextBox.LoadFile(openFile.FileName, RichTextBoxStreamType.PlainText);
+            }
+        }
+
         private void cmdTextBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
@@ -65,6 +110,11 @@ namespace ase_simplelanguage
             Graphics gfx = e.Graphics;
 
             gfx.DrawImageUnscaled(Outputbmp, 0, 0);
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
         }
     }
 }

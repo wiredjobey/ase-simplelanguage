@@ -16,9 +16,13 @@ namespace ase_simplelanguage
         // initialise drawing area (graphics)
         Graphics gfx;
 
-        // initialise pen and its x and y position
+        // initialise pen, brush and their x and y position
         Pen pen;
+        SolidBrush brush;
         int xPos, yPos;
+
+        // a boolean to set whether a shape should be filled
+        bool fillOn;
 
         /// <summary>
         /// Constructor for canvas which adds the drawing area and sets the initial pen parameters (position, colour, size)
@@ -32,20 +36,60 @@ namespace ase_simplelanguage
             xPos = 0;
             yPos = 0;
             pen = new Pen(Color.FromName(colour), size);
-        }
-
-        public void EditPen(int r, int g, int b, int pixelSize)
-        {
-            pen = new Pen(Color.FromArgb(r, g, b), pixelSize);
+            brush = new SolidBrush(Color.FromName(colour));
         }
 
         /// <summary>
-        /// Draw a circle from the top left of hte current pen position (xPos, yPos)
+        /// Clear the drawing area
+        /// </summary>
+        public void Clear()
+        {
+            gfx.Clear(Color.Transparent);
+        }
+
+
+        /// <summary>
+        /// Change the colour of the pen and brush
+        /// </summary>
+        /// <param name="colour">colour to change to, must be a predefined colour</param>
+        public void Colour(string colour)
+        {
+            pen.Color = Color.FromName(colour);
+            brush.Color = Color.FromName(colour);
+        }
+
+        /// <summary>
+        /// Toggle filling the drawn shapes
+        /// </summary>
+        /// <param name="b">boolean, fill on or off</param>
+        public void PenFill(bool b)
+        {
+            fillOn = b;
+        }
+
+        /// <summary>
+        /// Move the pen pointer to a new position
+        /// </summary>
+        /// <param name="toX">New x position (in pixels)</param>
+        /// <param name="toY">New y position (in pixels)</param>
+        public void MoveTo(int toX, int toY)
+        {
+            xPos = toX;
+            yPos = toY;
+        }
+
+        /// <summary>
+        /// Draw a circle from the top left of the current pen position (xPos, yPos)
         /// </summary>
         /// <param name="rad"> Radius of the circle (in pixels)</param>
         public void DrawCircle(int rad)
         {
             gfx.DrawEllipse(pen, xPos, yPos, (rad * 2), (rad * 2));
+
+            if (fillOn)
+            {
+                gfx.FillEllipse(brush, xPos, yPos, (rad * 2), (rad * 2));
+            }
         }
 
         /// <summary>
@@ -56,6 +100,12 @@ namespace ase_simplelanguage
         public void DrawLine(int toX, int toY)
         {
             gfx.DrawLine(pen, xPos, yPos, toX, toY);
+
+            if (fillOn) 
+            { 
+                gfx.DrawLine(pen, xPos, yPos, toX, toY);
+            }
+
             xPos = toX;
             yPos = toY;
         }
@@ -66,7 +116,7 @@ namespace ase_simplelanguage
         /// <param name="toX">New x position (in pixels)</param>
         /// <param name="toY">New y position (in pixels)</param>
         /// <param name="toZ">Third z position (in pixels)</param>
-        public void DrawTriangle (int toX, int toY, int toZ)
+        public void DrawTriangle(int toX, int toY, int toZ)
         {
             // turn the position coordinates into points and put them in a point array
             Point point1 = new Point(xPos, yPos);
@@ -75,15 +125,26 @@ namespace ase_simplelanguage
             Point[] tripoints = { point1, point2, point3 };
 
             gfx.DrawPolygon(pen, tripoints);
+
+            if (fillOn)
+            {
+                gfx.FillPolygon(brush, tripoints);
+            }
         }
 
         /// <summary>
-        /// Draw a square which arrives at the initial pen position (xPos, yPos)
+        /// Draw a rectangle which arrives at the initial pen position (xPos, yPos)
         /// </summary>
-        /// <param name="size">Size of the square (in pixels)</param>
-        public void DrawSquare(int size)
+        /// <param name="toX">width of the rectangle (in pixels)</param>
+        /// <param name="toY">height of the rectangle (in pixels)</param>
+        public void DrawRectangle(int toX, int toY)
         {
-            gfx.DrawRectangle(pen, xPos, yPos, size, size);
+            gfx.DrawRectangle(pen, xPos, yPos, toX, toY);
+
+            if (fillOn)
+            {
+                gfx.FillRectangle(brush, xPos, yPos, toX, toY);
+            }
         }
     }
 }
