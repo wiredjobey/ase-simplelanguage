@@ -19,10 +19,18 @@ namespace ase_simplelanguage
         // initialise pen, brush and their x and y position
         Pen pen;
         SolidBrush brush;
-        int xPos, yPos;
+        public int xPos, yPos;
 
         // a boolean to set whether a shape should be filled
-        bool fillOn;
+        public bool fillOn;
+
+        // a boolean to set whether the class is being used for testing
+        bool testing;
+
+        public Canvas()
+        {
+            testing = true;
+        }
 
         /// <summary>
         /// Constructor for canvas which adds the drawing area and sets the initial pen parameters (position, colour, size)
@@ -101,13 +109,12 @@ namespace ase_simplelanguage
         {
             gfx.DrawLine(pen, xPos, yPos, toX, toY);
 
-            if (fillOn) 
-            { 
+            if (fillOn)
+            {
                 gfx.DrawLine(pen, xPos, yPos, toX, toY);
             }
 
-            xPos = toX;
-            yPos = toY;
+            MoveTo(toX, toY);
         }
         
         /// <summary>
@@ -115,20 +122,24 @@ namespace ase_simplelanguage
         /// </summary>
         /// <param name="toX">New x position (in pixels)</param>
         /// <param name="toY">New y position (in pixels)</param>
-        /// <param name="toZ">Third z position (in pixels)</param>
-        public void DrawTriangle(int toX, int toY, int toZ)
+        /// <param name="toA">a position (in pixels)</param>
+        /// <param name="toB">b position (in pixels)</param>
+        public void DrawTriangle(int toX, int toY, int toA, int toB)
         {
             // turn the position coordinates into points and put them in a point array
             Point point1 = new Point(xPos, yPos);
             Point point2 = new Point(toX, toY);
-            Point point3 = new Point(toY, toZ);
+            Point point3 = new Point(toA, toB);
             Point[] tripoints = { point1, point2, point3 };
 
-            gfx.DrawPolygon(pen, tripoints);
-
-            if (fillOn)
+            if (!testing)
             {
-                gfx.FillPolygon(brush, tripoints);
+                gfx.DrawPolygon(pen, tripoints);
+
+                if (fillOn)
+                {
+                    gfx.FillPolygon(brush, tripoints);
+                }
             }
         }
 

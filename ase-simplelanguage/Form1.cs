@@ -29,25 +29,29 @@ namespace ase_simplelanguage
         Canvas MyCanvas;
         Parser p = new Parser();
 
+        // initialise the form and canvas
         public Form1()
         {
             InitializeComponent();
             MyCanvas = new Canvas(Graphics.FromImage(Outputbmp), penColour, penSize);
         }
 
+        // reset the output and editor
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
             edTextBox.Clear();
+            errorLabel.Text = "";
             MyCanvas.Clear();
             Refresh();
         }
 
+        // handles the save dialog
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // Create a SaveFileDialog to request a path and file name to save to.
+            // creates a dialog to choose save path and filename
             SaveFileDialog saveFile = new SaveFileDialog();
 
-            // Initialize the SaveFileDialog to specify the RTF extension for the file.
+            // initialising defaults for the dialog
             saveFile.FileName = "program";
             saveFile.DefaultExt = "txt";
             saveFile.Filter = "Text files (*.txt)|*.txt";
@@ -55,42 +59,67 @@ namespace ase_simplelanguage
 
             DialogResult result = saveFile.ShowDialog();
 
-            // Determine if the user selected a file name from the saveFileDialog.
-            if (result == System.Windows.Forms.DialogResult.OK && saveFile.FileName.Length > 0)
+            // determines if the dialog result is successful and saves the file as a plaintext document
+            if (result == DialogResult.OK)
             {
-                // Save the contents of the RichTextBox into the file.
                 edTextBox.SaveFile(saveFile.FileName, RichTextBoxStreamType.PlainText);
             }
         }
 
+        // handles the load dialog
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // Create an OpenFileDialog to request a file to open.
+            // create a dialog to choose a file to open
             OpenFileDialog openFile = new OpenFileDialog();
 
-            // Initialize the OpenFileDialog to look for RTF files.
+            // initialise defaults for the dialog
             openFile.DefaultExt = "*.txt";
             openFile.Filter = "Text Files (*.txt)|*.txt";
 
-            // Determine whether the user selected a file from the OpenFileDialog.
-            if (openFile.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            DialogResult result = openFile.ShowDialog();
+
+            // determines if the dialog result is successful and loads the file into the editor
+            if (result == DialogResult.OK)
             {
-                // Load the contents of the file into the RichTextBox.
                 edTextBox.LoadFile(openFile.FileName, RichTextBoxStreamType.PlainText);
             }
         }
 
+        // exit the program
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+        // checks whether the user has finished typing by checking for an enter key press in the commandline box
         private void cmdTextBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
             {
+                errorLabel.Text = "";
+                List<string> errors = new List<string>();
+
+                // if the commandline text is "run", parse the editor text, else parse the commandline text
                 if (cmdTextBox.Text == "run")
                 {
+                    // split each line of the editor text into an array of commands to be parsed
                     string[] commands = edTextBox.Lines;
 
                     for (int i = 0; i < commands.Length; i++)
                     {
-                        p.parseCommand(commands[i], MyCanvas);
+                        try
+                        {
+                            p.parseCommand(commands[i], MyCanvas);
+                        }
+                        catch (Exception ex)
+                        {
+                            errors.Add("Line " + (i + 1) + ": " + ex.Message);
+                        }
+                    }
+
+                    if (errors.Count != 0)
+                    {
+                        errorLabel.Text = String.Join("\n", errors);
                     }
 
                     cmdTextBox.Text = "";
@@ -105,16 +134,12 @@ namespace ase_simplelanguage
             }
         }
 
+        // draws the canvas image in the output box
         private void outputBox_Paint(object sender, PaintEventArgs e)
         {
             Graphics gfx = e.Graphics;
 
             gfx.DrawImageUnscaled(Outputbmp, 0, 0);
-        }
-
-        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Application.Exit();
         }
     }
 }

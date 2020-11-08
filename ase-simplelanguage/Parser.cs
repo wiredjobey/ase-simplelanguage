@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace ase_simplelanguage
 {
-    class Parser
+    public class Parser
     {
-        public void parseCommand(String line, Canvas MyCanvas)
+        public void parseCommand(String line, Canvas myCanvas)
         {
             line = line.ToLower().Trim();
             string[] splitLine = line.Split();
@@ -19,6 +19,8 @@ namespace ase_simplelanguage
                 string command = splitLine[0];
                 string[] parameters = splitLine[1].Split(',');
 
+                ApplicationException invalidLengthException = new ApplicationException("Invalid number of parameters for " + command);
+
                 if (!splitLine[1].Any(char.IsDigit))
                 {
                     switch (command)
@@ -26,21 +28,43 @@ namespace ase_simplelanguage
                         case "pen":
                             if(parameters.Length == 1)
                             {
-                                MyCanvas.Colour(parameters[0]);
+                                Color c = Color.FromName(parameters[0]);
+
+                                if (c.IsKnownColor)
+                                {
+                                    myCanvas.Colour(parameters[0]);
+                                }
+                                else
+                                {
+                                    throw new ApplicationException("Invalid colour for pen");
+                                }
                             }
+                            else { throw invalidLengthException; }
                             break;
                         case "fill":
                             if(parameters.Length == 1)
                             {
                                 if (parameters[0] == "on")
                                 {
-                                    MyCanvas.PenFill(true);
-                                } else if (parameters[0] == "off")
+                                    myCanvas.PenFill(true);
+                                } 
+                                else if (parameters[0] == "off")
                                 {
-                                    MyCanvas.PenFill(false);
+                                    myCanvas.PenFill(false);
+                                } else
+                                {
+                                    throw new ApplicationException("Invalid parameter for fill (must be on/off)");
                                 }
                             }
+                            else { throw invalidLengthException; }
                             break;
+                        case "moveto":
+                        case "drawto":
+                        case "triangle":
+                        case "square":
+                        case "rectangle":
+                        case "circle":
+                            throw new ApplicationException("Invalid parameter type (must be int)");
                     }
                 } 
                 else
@@ -57,33 +81,48 @@ namespace ase_simplelanguage
                         case "moveto":
                             if (paramsInt.Length == 2)
                             {
-                                MyCanvas.MoveTo(paramsInt[0], paramsInt[1]);
+                                myCanvas.MoveTo(paramsInt[0], paramsInt[1]);
                             }
+                            else { throw invalidLengthException; }
                             break;
                         case "drawto":
                             if (paramsInt.Length == 2)
                             {
-                                MyCanvas.DrawLine(paramsInt[0], paramsInt[1]);
+                                myCanvas.DrawLine(paramsInt[0], paramsInt[1]);
                             }
+                            else { throw invalidLengthException; }
                             break;
                         case "triangle":
-                            if (paramsInt.Length == 3)
+                            if (paramsInt.Length == 4)
                             {
-                                MyCanvas.DrawTriangle(paramsInt[0], paramsInt[1], paramsInt[2]);
+                                myCanvas.DrawTriangle(paramsInt[0], paramsInt[1], paramsInt[2], paramsInt[3]);
                             }
+                            else { throw invalidLengthException; }
                             break;
                         case "square":
                             if (paramsInt.Length == 1)
                             {
-                                MyCanvas.DrawRectangle(paramsInt[0], paramsInt[0]);
+                                myCanvas.DrawRectangle(paramsInt[0], paramsInt[0]);
                             }
+                            else { throw invalidLengthException; }
+                            break;
+                        case "rectangle":
+                            if (paramsInt.Length == 2)
+                            {
+                                myCanvas.DrawRectangle(paramsInt[0], paramsInt[1]);
+                            }
+                            else { throw invalidLengthException; }
                             break;
                         case "circle":
                             if (paramsInt.Length == 1)
                             {
-                                MyCanvas.DrawCircle(paramsInt[0]);
+                                myCanvas.DrawCircle(paramsInt[0]);
                             }
+                            else { throw invalidLengthException; }
                             break;
+                        case "pen":
+                        case "fill":
+                            throw new ApplicationException("Invalid parameter type (must be string)");
                     }
                 }
             }
@@ -92,10 +131,10 @@ namespace ase_simplelanguage
                 switch(line)
                 {
                     case "clear":
-                        MyCanvas.Clear();
+                        myCanvas.Clear();
                         break;
                     case "reset":
-                        MyCanvas.MoveTo(0, 0);
+                        myCanvas.MoveTo(0, 0);
                         break;
                 }
             }
