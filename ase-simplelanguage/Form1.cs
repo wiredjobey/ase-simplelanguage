@@ -25,6 +25,10 @@ namespace ase_simplelanguage
         // bitmap to draw, using size constants defined above
         Bitmap Outputbmp = new Bitmap(bmpX, bmpY);
 
+        // pointer bitmap and canvas
+        Bitmap pointerbmp = new Bitmap(bmpX, bmpY);
+        Canvas pointer;
+
         // loading a canvas and parser
         Canvas MyCanvas;
         Parser p = new Parser();
@@ -34,6 +38,9 @@ namespace ase_simplelanguage
         {
             InitializeComponent();
             MyCanvas = new Canvas(Graphics.FromImage(Outputbmp), penColour, penSize);
+
+            pointer = new Canvas(Graphics.FromImage(pointerbmp), "Red", 3);
+            pointer.DrawRectangle(1, 1);
         }
 
         // reset the output and editor
@@ -42,6 +49,11 @@ namespace ase_simplelanguage
             edTextBox.Clear();
             errorLabel.Text = "";
             MyCanvas.Clear();
+            MyCanvas.MoveTo(0, 0);
+
+            pointer.MoveTo(0, 0);
+            pointer.DrawRectangle(1, 1);
+
             Refresh();
         }
 
@@ -109,7 +121,7 @@ namespace ase_simplelanguage
                     {
                         try
                         {
-                            p.parseCommand(commands[i], MyCanvas);
+                            p.parseCommand(commands[i], MyCanvas, pointer);
                         }
                         catch (Exception ex)
                         {
@@ -127,7 +139,14 @@ namespace ase_simplelanguage
                 }
                 else
                 {
-                    p.parseCommand(cmdTextBox.Text, MyCanvas);
+                    try
+                    {
+                        p.parseCommand(cmdTextBox.Text, MyCanvas, pointer);
+                    }
+                    catch (Exception ex)
+                    {
+                        errorLabel.Text = ex.Message;
+                    }
                     cmdTextBox.Text = "";
                     Refresh();
                 }
@@ -140,6 +159,7 @@ namespace ase_simplelanguage
             Graphics gfx = e.Graphics;
 
             gfx.DrawImageUnscaled(Outputbmp, 0, 0);
+            gfx.DrawImageUnscaled(pointerbmp, 0, 0);
         }
     }
 }

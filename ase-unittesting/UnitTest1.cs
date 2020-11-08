@@ -17,7 +17,7 @@ namespace ase_unittesting
         [TestMethod]
         public void TestParseCommandMoveToValid()
         {
-            p.parseCommand("MoveTo 100,100", c);
+            p.parseCommand("MoveTo 100,100", c, c);
 
             double expected = 100.00;
 
@@ -35,7 +35,7 @@ namespace ase_unittesting
 
             try
             {
-                p.parseCommand("MoveTo 100", c);
+                p.parseCommand("MoveTo 100", c, c);
             } 
             catch (ApplicationException e)
             {
@@ -57,7 +57,7 @@ namespace ase_unittesting
 
             try
             {
-                p.parseCommand("pen colourofspace", c);
+                p.parseCommand("pen colourofspace", c, c);
             }
             catch (ApplicationException e)
             {
@@ -75,7 +75,7 @@ namespace ase_unittesting
         [TestMethod]
         public void TestParseCommandFillValid()
         {
-            p.parseCommand("fill on", c);
+            p.parseCommand("fill on", c, c);
 
             Assert.IsTrue(c.fillOn);
         }
@@ -91,7 +91,7 @@ namespace ase_unittesting
 
             try
             {
-                p.parseCommand("fill no", c);
+                p.parseCommand("fill no", c, c);
             }
             catch (ApplicationException e)
             {
@@ -110,7 +110,7 @@ namespace ase_unittesting
         [TestMethod]
         public void TestParseCommandVarValid()
         {
-            p.parseCommand("var 300", c);
+            p.parseCommand("var 300", c, c);
 
             double expected = 300.00;
 
@@ -127,7 +127,7 @@ namespace ase_unittesting
 
             try
             {
-                p.parseCommand("var iable", c);
+                p.parseCommand("var iable", c, c);
             }
             catch (ApplicationException e)
             {

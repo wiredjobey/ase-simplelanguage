@@ -9,7 +9,7 @@ namespace ase_simplelanguage
 {
     public class Parser
     {
-        public void parseCommand(String line, Canvas myCanvas)
+        public void parseCommand(String line, Canvas myCanvas, Canvas pointer)
         {
             line = line.ToLower().Trim();
             string[] splitLine = line.Split();
@@ -65,6 +65,8 @@ namespace ase_simplelanguage
                         case "rectangle":
                         case "circle":
                             throw new ApplicationException("Invalid parameter type (must be int)");
+                        default:
+                            throw new ApplicationException("Invalid command");
                     }
                 } 
                 else
@@ -82,6 +84,9 @@ namespace ase_simplelanguage
                             if (paramsInt.Length == 2)
                             {
                                 myCanvas.MoveTo(paramsInt[0], paramsInt[1]);
+                                pointer.MoveTo(paramsInt[0], paramsInt[1]);
+                                pointer.Clear();
+                                pointer.DrawRectangle(1, 1);
                             }
                             else { throw invalidLengthException; }
                             break;
@@ -89,6 +94,9 @@ namespace ase_simplelanguage
                             if (paramsInt.Length == 2)
                             {
                                 myCanvas.DrawLine(paramsInt[0], paramsInt[1]);
+                                pointer.MoveTo(paramsInt[0], paramsInt[1]);
+                                pointer.Clear();
+                                pointer.DrawRectangle(1, 1);
                             }
                             else { throw invalidLengthException; }
                             break;
@@ -106,7 +114,7 @@ namespace ase_simplelanguage
                             }
                             else { throw invalidLengthException; }
                             break;
-                        case "rectangle":
+                        case "rect":
                             if (paramsInt.Length == 2)
                             {
                                 myCanvas.DrawRectangle(paramsInt[0], paramsInt[1]);
@@ -123,6 +131,8 @@ namespace ase_simplelanguage
                         case "pen":
                         case "fill":
                             throw new ApplicationException("Invalid parameter type (must be string)");
+                        default:
+                            throw new ApplicationException("Invalid command");
                     }
                 }
             }
@@ -135,7 +145,12 @@ namespace ase_simplelanguage
                         break;
                     case "reset":
                         myCanvas.MoveTo(0, 0);
+                        pointer.MoveTo(0, 0);
+                        pointer.Clear();
+                        pointer.DrawRectangle(1, 1);
                         break;
+                    default:
+                        throw new ApplicationException("Invalid command");
                 }
             }
         }
