@@ -52,6 +52,7 @@ namespace ase_simplelanguage
             MyCanvas.MoveTo(0, 0);
 
             pointer.MoveTo(0, 0);
+            pointer.Clear();
             pointer.DrawRectangle(1, 1);
 
             Refresh();

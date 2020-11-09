@@ -101,6 +101,7 @@ namespace ase_simplelanguage
                             else { throw invalidLengthException; }
                             break;
                         case "triangle":
+                        case "tri":
                             if (paramsInt.Length == 4)
                             {
                                 myCanvas.DrawTriangle(paramsInt[0], paramsInt[1], paramsInt[2], paramsInt[3]);
@@ -114,6 +115,7 @@ namespace ase_simplelanguage
                             }
                             else { throw invalidLengthException; }
                             break;
+                        case "rectangle":
                         case "rect":
                             if (paramsInt.Length == 2)
                             {
