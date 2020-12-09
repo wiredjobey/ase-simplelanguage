@@ -83,6 +83,7 @@ namespace ase_simplelanguage
                         case "moveto":
                             if (paramsInt.Length == 2)
                             {
+
                                 myCanvas.MoveTo(paramsInt[0], paramsInt[1]);
                                 pointer.MoveTo(paramsInt[0], paramsInt[1]);
                                 pointer.Clear();

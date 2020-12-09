@@ -14,22 +14,23 @@ namespace ase_simplelanguage
     public class Canvas
     {
         // initialise drawing area (graphics)
-        Graphics gfx;
+        public Graphics gfx;
 
         // initialise pen, brush and their x and y position
-        Pen pen;
-        SolidBrush brush;
+        public Pen pen;
+        public SolidBrush brush;
         public int xPos, yPos;
+
+        // initialise factory and drawing instance
+        Factory fact = new Factory();
+        Drawing d;
 
         // a boolean to set whether a shape should be filled
         public bool fillOn;
 
-        // a boolean to set whether the class is being used for testing
-        bool testing;
-
         public Canvas()
         {
-            testing = true;
+
         }
 
         /// <summary>
@@ -82,8 +83,9 @@ namespace ase_simplelanguage
         /// <param name="toY">New y position (in pixels)</param>
         public void MoveTo(int toX, int toY)
         {
-            xPos = toX;
-            yPos = toY;
+            d = fact.GetDrawing("moveto");
+            d.Set(this, toX, toY);
+            d.draw(gfx);
         }
 
         /// <summary>
@@ -92,12 +94,9 @@ namespace ase_simplelanguage
         /// <param name="rad"> Radius of the circle (in pixels)</param>
         public void DrawCircle(int rad)
         {
-            gfx.DrawEllipse(pen, xPos, yPos, (rad * 2), (rad * 2));
-
-            if (fillOn)
-            {
-                gfx.FillEllipse(brush, xPos, yPos, (rad * 2), (rad * 2));
-            }
+            d = fact.GetDrawing("circle");
+            d.Set(this, rad);
+            d.draw(gfx);
         }
 
         /// <summary>
@@ -107,12 +106,9 @@ namespace ase_simplelanguage
         /// <param name="toY">New y position (in pixels)</param>
         public void DrawLine(int toX, int toY)
         {
-            gfx.DrawLine(pen, xPos, yPos, toX, toY);
-
-            if (fillOn)
-            {
-                gfx.DrawLine(pen, xPos, yPos, toX, toY);
-            }
+            d = fact.GetDrawing("drawto");
+            d.Set(this, toX, toY);
+            d.draw(gfx);
 
             MoveTo(toX, toY);
         }
@@ -126,21 +122,9 @@ namespace ase_simplelanguage
         /// <param name="toB">b position (in pixels)</param>
         public void DrawTriangle(int toX, int toY, int toA, int toB)
         {
-            // turn the position coordinates into points and put them in a point array
-            Point point1 = new Point(xPos, yPos);
-            Point point2 = new Point(toX, toY);
-            Point point3 = new Point(toA, toB);
-            Point[] tripoints = { point1, point2, point3 };
-
-            if (!testing)
-            {
-                gfx.DrawPolygon(pen, tripoints);
-
-                if (fillOn)
-                {
-                    gfx.FillPolygon(brush, tripoints);
-                }
-            }
+            d = fact.GetDrawing("triangle");
+            d.Set(this, toX, toY, toA, toB);
+            d.draw(gfx);
         }
 
         /// <summary>
@@ -150,12 +134,9 @@ namespace ase_simplelanguage
         /// <param name="toY">height of the rectangle (in pixels)</param>
         public void DrawRectangle(int toX, int toY)
         {
-            gfx.DrawRectangle(pen, xPos, yPos, toX, toY);
-
-            if (fillOn)
-            {
-                gfx.FillRectangle(brush, xPos, yPos, toX, toY);
-            }
+            d = fact.GetDrawing("rectangle");
+            d.Set(this, toX, toY);
+            d.draw(gfx);
         }
     }
 }
