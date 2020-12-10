@@ -110,11 +110,11 @@ namespace ase_unittesting
         [TestMethod]
         public void TestParseCommandVarValid()
         {
-            p.parseCommand("var 300", c, c);
+            p.parseCommand("var iable", c, c);
 
-            double expected = 300.00;
+            string expected = "iable";
 
-            Assert.AreEqual(expected, c.xPos, 0.001);
+            Assert.AreEqual(expected, p.variables[0].Value);
         }
 
         /// <summary>
@@ -127,14 +127,14 @@ namespace ase_unittesting
 
             try
             {
-                p.parseCommand("var iable", c, c);
+                p.parseCommand("var 300", c, c);
             }
             catch (ApplicationException e)
             {
                 actual = e.Message;
             }
 
-            string expected = "Invalid parameter for var (must be int)";
+            string expected = "Invalid parameter type (must be string)";
 
             Assert.AreEqual(expected, actual);
         }

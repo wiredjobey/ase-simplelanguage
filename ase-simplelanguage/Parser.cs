@@ -9,6 +9,16 @@ namespace ase_simplelanguage
 {
     public class Parser
     {
+        public int programCount;
+
+        bool loopFlag;
+        int loopCount;
+        int loopSize;
+        int loopIter;
+
+        int variableCount;
+        public List<KeyValuePair<string, int>> variables = new List<KeyValuePair<string, int>>();
+
         public void parseCommand(String line, Canvas myCanvas, Canvas pointer)
         {
             line = line.ToLower().Trim();
@@ -21,7 +31,17 @@ namespace ase_simplelanguage
 
                 ApplicationException invalidLengthException = new ApplicationException("Invalid number of parameters for " + command);
 
-                if (!splitLine[1].Any(char.IsDigit))
+                for (int i = 0; i < parameters.Length; i++)
+                {
+                    if (parameters[i] == variables.Find(x => x.Key == parameters[i]).Key)
+                    {
+                        parameters[i] = variables.Find(x => x.Key == parameters[i]).Value.ToString();
+                    }
+                }
+
+                string p = string.Join(",", parameters);
+
+                if (!p.Any(char.IsDigit))
                 {
                     switch (command)
                     {
@@ -58,12 +78,22 @@ namespace ase_simplelanguage
                             }
                             else { throw invalidLengthException; }
                             break;
+                        case "var":
+                            if (parameters.Length == 1)
+                            {
+                                variables.Add(new KeyValuePair<string, int>(parameters[0], 0));
+                                variableCount++;
+                            }
+                            else { throw invalidLengthException; }
+                            break;
+
                         case "moveto":
                         case "drawto":
                         case "triangle":
                         case "square":
                         case "rectangle":
                         case "circle":
+                        case "loop":
                             throw new ApplicationException("Invalid parameter type (must be int)");
                         default:
                             throw new ApplicationException("Invalid command");
@@ -131,6 +161,17 @@ namespace ase_simplelanguage
                             }
                             else { throw invalidLengthException; }
                             break;
+                        case "loop":
+                            if (paramsInt.Length == 1)
+                            {
+                                loopIter = paramsInt[0];
+                                loopFlag = true;
+                                loopCount = 0;
+                                loopSize = 0;
+                            }
+                            else { throw invalidLengthException; }
+                            break;
+                        case "var":
                         case "pen":
                         case "fill":
                             throw new ApplicationException("Invalid parameter type (must be string)");
@@ -141,21 +182,52 @@ namespace ase_simplelanguage
             }
             else
             {
-                switch(line)
+                if(splitLine.Length == 3)
                 {
-                    case "clear":
-                        myCanvas.Clear();
-                        break;
-                    case "reset":
-                        myCanvas.MoveTo(0, 0);
-                        pointer.MoveTo(0, 0);
-                        pointer.Clear();
-                        pointer.DrawRectangle(1, 1);
-                        break;
-                    default:
-                        throw new ApplicationException("Invalid command");
+
+                    if (splitLine[1] == "=")
+                    {
+                        string var = splitLine[0];
+                        string val = splitLine[2];
+
+                        if (var == variables.Find(x => x.Key == var).Key)
+                        {
+                            var newVal = new KeyValuePair<string, int>(var, int.Parse(val));
+                            variables.RemoveAll(x => x.Key == var);
+                            variables.Add(newVal);
+                        }
+                    }
+                }
+                else
+                {
+                    switch (line)
+                    {
+                        case "clear":
+                            myCanvas.Clear();
+                            break;
+                        case "reset":
+                            myCanvas.MoveTo(0, 0);
+                            pointer.MoveTo(0, 0);
+                            pointer.Clear();
+                            pointer.DrawRectangle(1, 1);
+                            break;
+                        case "endloop":
+                            loopFlag = false;
+                            if (loopCount++ < loopIter)
+                            {
+                                programCount = programCount - loopSize;
+                            }
+                            break;
+                        default:
+                            throw new ApplicationException("Invalid command");
+                    }
                 }
             }
+
+            if (loopFlag)
+                loopSize++;
+
+            programCount++;
         }
     }
 }

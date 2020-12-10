@@ -118,7 +118,7 @@ namespace ase_simplelanguage
                     // split each line of the editor text into an array of commands to be parsed
                     string[] commands = edTextBox.Lines;
 
-                    for (int i = 0; i < commands.Length; i++)
+                    for (int i = 0; i < commands.Length; i = p.programCount)
                     {
                         try
                         {
