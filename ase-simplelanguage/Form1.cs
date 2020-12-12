@@ -127,6 +127,7 @@ namespace ase_simplelanguage
                         catch (Exception ex)
                         {
                             errors.Add("Line " + (i + 1) + ": " + ex.Message);
+                            p.programCount++;
                         }
                     }
 
@@ -135,6 +136,7 @@ namespace ase_simplelanguage
                         errorLabel.Text = String.Join("\n", errors);
                     }
 
+                    p.programCount = 0;
                     cmdTextBox.Text = "";
                     Refresh();
                 }

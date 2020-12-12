@@ -15,14 +15,23 @@ namespace ase_simplelanguage
         int loopCount;
         int loopSize;
         int loopIter;
+        bool executeFlag = true;
 
-        int variableCount;
         public List<KeyValuePair<string, int>> variables = new List<KeyValuePair<string, int>>();
 
         public void parseCommand(String line, Canvas myCanvas, Canvas pointer)
         {
             line = line.ToLower().Trim();
             string[] splitLine = line.Split();
+
+            if (!executeFlag)
+            {
+                if (line == "endif")
+                    executeFlag = true;
+
+                programCount++;
+                return;
+            }
 
             if (splitLine.Length == 2)
             {
@@ -31,12 +40,10 @@ namespace ase_simplelanguage
 
                 ApplicationException invalidLengthException = new ApplicationException("Invalid number of parameters for " + command);
 
-                for (int i = 0; i < parameters.Length; i++)
+
+                if (command != "var")
                 {
-                    if (parameters[i] == variables.Find(x => x.Key == parameters[i]).Key)
-                    {
-                        parameters[i] = variables.Find(x => x.Key == parameters[i]).Value.ToString();
-                    }
+                    parameters = CheckVar(parameters);
                 }
 
                 string p = string.Join(",", parameters);
@@ -82,7 +89,6 @@ namespace ase_simplelanguage
                             if (parameters.Length == 1)
                             {
                                 variables.Add(new KeyValuePair<string, int>(parameters[0], 0));
-                                variableCount++;
                             }
                             else { throw invalidLengthException; }
                             break;
@@ -182,23 +188,7 @@ namespace ase_simplelanguage
             }
             else
             {
-                if(splitLine.Length == 3)
-                {
-
-                    if (splitLine[1] == "=")
-                    {
-                        string var = splitLine[0];
-                        string val = splitLine[2];
-
-                        if (var == variables.Find(x => x.Key == var).Key)
-                        {
-                            var newVal = new KeyValuePair<string, int>(var, int.Parse(val));
-                            variables.RemoveAll(x => x.Key == var);
-                            variables.Add(newVal);
-                        }
-                    }
-                }
-                else
+                if (splitLine.Length == 1)
                 {
                     switch (line)
                     {
@@ -218,10 +208,69 @@ namespace ase_simplelanguage
                                 programCount = programCount - loopSize;
                             }
                             break;
+                        case "endif":
+                            throw new ApplicationException("No if statement");
                         default:
                             throw new ApplicationException("Invalid command");
                     }
+
                 }
+                else
+                {
+                    if (splitLine[1] == "=")
+                    {
+                        if (splitLine.Length != 3)
+                            throw new ApplicationException("Invalid number of parameters for variable assignment");
+
+                        string var = splitLine[0];
+                        string val = splitLine[2];
+
+                        if (var == variables.Find(x => x.Key == var).Key)
+                        {
+                            var newVal = new KeyValuePair<string, int>(var, int.Parse(val));
+                            variables.RemoveAll(x => x.Key == var);
+                            variables.Add(newVal);
+                        }
+                        else { throw new ApplicationException("Unknown variable"); }
+                    }
+
+                    if (splitLine[0] == "if")
+                    {
+                        int i = line.IndexOf(" ") + 1;
+                        string cond = line.Replace("(", " ").Replace(")", " ").Substring(i).Trim();
+                        string[] splitCond = cond.Split();
+
+
+                        if (splitCond.Length == 3 && splitCond[1] == "==")
+                        {
+                            int[] condInt = CheckVar(splitCond).Where(str => str.All(Char.IsDigit)).Select(str => int.Parse(str)).ToArray();
+
+                            if (condInt[0] != condInt[1])
+                            {
+                                executeFlag = false;
+                            }
+                        }
+                    }
+                }
+            }
+
+            string[] CheckVar(string[] parameters)
+            {
+                string[] newParams = new string[parameters.Length];
+
+                for (int i = 0; i < parameters.Length; i++)
+                {
+                    if (parameters[i] == variables.Find(x => x.Key == parameters[i]).Key)
+                    {
+                        newParams[i] = variables.Find(x => x.Key == parameters[i]).Value.ToString();
+                    } 
+                    else //if (parameters[i].All(Char.IsDigit))
+                    {
+                        newParams[i] = parameters[i];
+                    }
+                }
+
+                return newParams;
             }
 
             if (loopFlag)
