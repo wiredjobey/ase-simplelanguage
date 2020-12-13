@@ -129,6 +129,14 @@ namespace ase_simplelanguage
                             errors.Add("Line " + (i + 1) + ": " + ex.Message);
                             p.programCount++;
                         }
+
+                        if (!p.methodFlag)
+                            p.programCountSave = p.programCount;
+                    }
+
+                    if (!p.executeFlag)
+                    {
+                        errors.Add("Program finished with executeFlag set to false. Missing endif or endmethod?");
                     }
 
                     if (errors.Count != 0)
@@ -150,6 +158,8 @@ namespace ase_simplelanguage
                     {
                         errorLabel.Text = ex.Message;
                     }
+
+                    p.programCount = 0;
                     cmdTextBox.Text = "";
                     Refresh();
                 }

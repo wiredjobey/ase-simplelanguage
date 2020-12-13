@@ -10,14 +10,22 @@ namespace ase_simplelanguage
     public class Parser
     {
         public int programCount;
+        public int programCountSave;
 
         bool loopFlag;
         int loopCount;
         int loopSize;
         int loopIter;
-        bool executeFlag = true;
+
+        public bool executeFlag = true;
+        public bool methodFlag;
+        bool methodAssignFlag;
+        string currentMethod;
 
         public List<KeyValuePair<string, int>> variables = new List<KeyValuePair<string, int>>();
+        public List<KeyValuePair<string, int>> methods = new List<KeyValuePair<string, int>>();
+        List<KeyValuePair<string, int>> localMethodVars = new List<KeyValuePair<string, int>>();
+        public List<KeyValuePair<string, KeyValuePair<string, int>>> methodVars = new List<KeyValuePair<string, KeyValuePair<string, int>>>();
 
         public void parseCommand(String line, Canvas myCanvas, Canvas pointer)
         {
@@ -27,6 +35,9 @@ namespace ase_simplelanguage
             if (!executeFlag)
             {
                 if (line == "endif")
+                    executeFlag = true;
+
+                if (line == "endmethod")
                     executeFlag = true;
 
                 programCount++;
@@ -92,7 +103,22 @@ namespace ase_simplelanguage
                             }
                             else { throw invalidLengthException; }
                             break;
+                        case "call":
+                            if (parameters.Length == 1)
+                            {
+                                string methodName = parameters[0];
 
+                                if (methodName == methods.Find(x => x.Key == methodName).Key)
+                                {
+                                    programCount = methods.Find(x => x.Key == methodName).Value;
+                                    methodFlag = true;
+                                    methodAssignFlag = true;
+                                }
+                                else { throw new ApplicationException("Invalid method"); }
+
+                            }
+                            else { throw invalidLengthException; }
+                            break;
                         case "moveto":
                         case "drawto":
                         case "triangle":
@@ -208,8 +234,18 @@ namespace ase_simplelanguage
                                 programCount = programCount - loopSize;
                             }
                             break;
+                        case "endmethod":
+                            if (methodFlag)
+                            {
+                                localMethodVars.Clear();
+                                methodFlag = false;
+                                programCount = programCountSave;
+                            }
+                            else { throw new ApplicationException("Method was not started"); }
+
+                            break;
                         case "endif":
-                            throw new ApplicationException("No if statement");
+                            break;
                         default:
                             throw new ApplicationException("Invalid command");
                     }
@@ -223,23 +259,50 @@ namespace ase_simplelanguage
                             throw new ApplicationException("Invalid number of parameters for variable assignment");
 
                         string var = splitLine[0];
-                        string val = splitLine[2];
+                        int val;
+                        int tryParseInt;
+
+                        if (methodAssignFlag)
+                        {
+                            currentMethod = methods.Where(x => x.Value < programCount).OrderBy(x => x.Value - programCount).First().Key;
+                            localMethodVars = methodVars.Where(x => x.Key == currentMethod).Select(x => x.Value).ToList();
+                            methodAssignFlag = false;
+                        }
+
+                        if (int.TryParse(splitLine[2], out tryParseInt))
+                            val = tryParseInt;
+                        else
+                            val = int.Parse(CheckVar(splitLine)[2]);
+
+                        
+
+                        if (methodFlag)
+                        {
+
+                            if (var == localMethodVars.Find(x => x.Key == var).Key)
+                            {
+                                var newVal = new KeyValuePair<string, int>(var, val);
+                                localMethodVars.RemoveAll(x => x.Key == var);
+                                localMethodVars.Add(newVal);
+
+                                //var saveVal = new KeyValuePair<string, KeyValuePair<string, int>>(currentMethod, newVal);
+                                //methodVars.Add(saveVal);
+                            }
+                        }
 
                         if (var == variables.Find(x => x.Key == var).Key)
                         {
-                            var newVal = new KeyValuePair<string, int>(var, int.Parse(val));
+                            var newVal = new KeyValuePair<string, int>(var, val);
                             variables.RemoveAll(x => x.Key == var);
                             variables.Add(newVal);
                         }
-                        else { throw new ApplicationException("Unknown variable"); }
                     }
 
                     if (splitLine[0] == "if")
                     {
-                        int i = line.IndexOf(" ") + 1;
-                        string cond = line.Replace("(", " ").Replace(")", " ").Substring(i).Trim();
+                        int removeCmd = line.IndexOf(" ") + 1;
+                        string cond = line.Replace("(", " ").Replace(")", " ").Substring(removeCmd).Trim();
                         string[] splitCond = cond.Split();
-
 
                         if (splitCond.Length == 3 && splitCond[1] == "==")
                         {
@@ -250,6 +313,31 @@ namespace ase_simplelanguage
                                 executeFlag = false;
                             }
                         }
+                        else { throw new ApplicationException("Invalid if condition"); }
+                    }
+
+                    if (splitLine[0] == "method")
+                    {
+                        int removeCmd = line.IndexOf(" ") + 1;
+                        string method = line.Replace("(", "").Replace(")", "").Substring(removeCmd).Trim();
+                        string[] splitMethod = method.Trim().Split();
+
+                        string methodName = splitMethod[0];
+                        string[] localVars = splitMethod.Skip(1).ToArray();
+
+                        var newMethod = new KeyValuePair<string, int>(methodName, programCount);
+                        methods.Add(newMethod);
+
+                        if (localVars.Length > 0)
+                        {
+                            for (int i = 0; i < localVars.Length; i++)
+                            {
+                                KeyValuePair<string, int> newVar = new KeyValuePair<string, int>(localVars[i], 0);
+                                methodVars.Add(new KeyValuePair<string, KeyValuePair<string, int>>(methodName, newVar));
+                            }
+                        }
+
+                        executeFlag = false;
                     }
                 }
             }
@@ -258,13 +346,26 @@ namespace ase_simplelanguage
             {
                 string[] newParams = new string[parameters.Length];
 
+                List<KeyValuePair<string, int>> kvp;
+
+                if (methodFlag)
+                    kvp = localMethodVars;
+                else
+                    kvp = variables;
+
                 for (int i = 0; i < parameters.Length; i++)
                 {
-                    if (parameters[i] == variables.Find(x => x.Key == parameters[i]).Key)
+                    if (parameters[i] == kvp.Find(x => x.Key == parameters[i]).Key)
                     {
-                        newParams[i] = variables.Find(x => x.Key == parameters[i]).Value.ToString();
+                        newParams[i] = kvp.Find(x => x.Key == parameters[i]).Value.ToString();
                     } 
-                    else //if (parameters[i].All(Char.IsDigit))
+                    else if (methodFlag)
+                    {
+                        methodFlag = false;
+                        newParams[i] = CheckVar(parameters)[i];
+                        methodFlag = true;
+                    }
+                    else
                     {
                         newParams[i] = parameters[i];
                     }
