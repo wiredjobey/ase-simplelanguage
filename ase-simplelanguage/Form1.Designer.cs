@@ -128,14 +128,16 @@
             // howToUseToolStripMenuItem
             // 
             this.howToUseToolStripMenuItem.Name = "howToUseToolStripMenuItem";
-            this.howToUseToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
+            this.howToUseToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.howToUseToolStripMenuItem.Text = "How to use";
+            this.howToUseToolStripMenuItem.Click += new System.EventHandler(this.howToUseToolStripMenuItem_Click);
             // 
             // creditsToolStripMenuItem
             // 
             this.creditsToolStripMenuItem.Name = "creditsToolStripMenuItem";
-            this.creditsToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
+            this.creditsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.creditsToolStripMenuItem.Text = "Credits";
+            this.creditsToolStripMenuItem.Click += new System.EventHandler(this.creditsToolStripMenuItem_Click);
             // 
             // edLabel
             // 

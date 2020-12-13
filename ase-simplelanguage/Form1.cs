@@ -104,6 +104,26 @@ namespace ase_simplelanguage
             Application.Exit();
         }
 
+        private void howToUseToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string howTo = "DRAWING:\t\tPEN:\t\tOTHER:" +
+                           "\nMoveTo [x,y]\t\tPen [colour]\tloop [i] (endloop)" +
+                           "\nDrawto [x,y]\t\tFill [on/off]\tif [cond] (endif)" +
+                           "\nCircle [x] (cir)\t\tReset\t\tmethod [name ([vars])]" +
+                           "\nTriangle [x,y,a,b] (tri)\tClear\t\t(endmethod)" +
+                           "\nSquare [x,y] (sqr)\t\t\t\tvar [name]";
+
+            MessageBox.Show(howTo, "Commands");
+        }
+
+        private void creditsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DialogResult messageBoxResult = MessageBox.Show("Made by Jobe for advanced software engineering class\nGo to github repository?", "Credits", MessageBoxButtons.YesNo);
+            
+            if (messageBoxResult.ToString() == "Yes")
+                System.Diagnostics.Process.Start("https://github.com/wiredjobey/ase-simplelanguage");
+        }
+
         // checks whether the user has finished typing by checking for an enter key press in the commandline box
         private void cmdTextBox_KeyDown(object sender, KeyEventArgs e)
         {
@@ -144,6 +164,8 @@ namespace ase_simplelanguage
                         errorLabel.Text = String.Join("\n", errors);
                     }
 
+                    p.methods.Clear();
+                    p.methodVars.Clear();
                     p.programCount = 0;
                     cmdTextBox.Text = "";
                     Refresh();

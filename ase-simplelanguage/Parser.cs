@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -21,6 +22,8 @@ namespace ase_simplelanguage
         public bool methodFlag;
         bool methodAssignFlag;
         string currentMethod;
+
+        DataTable dt = new DataTable();
 
         public List<KeyValuePair<string, int>> variables = new List<KeyValuePair<string, int>>();
         public List<KeyValuePair<string, int>> methods = new List<KeyValuePair<string, int>>();
@@ -172,6 +175,7 @@ namespace ase_simplelanguage
                             else { throw invalidLengthException; }
                             break;
                         case "square":
+                        case "sqr":
                             if (paramsInt.Length == 1)
                             {
                                 myCanvas.DrawRectangle(paramsInt[0], paramsInt[0]);
@@ -187,6 +191,7 @@ namespace ase_simplelanguage
                             else { throw invalidLengthException; }
                             break;
                         case "circle":
+                        case "cir":
                             if (paramsInt.Length == 1)
                             {
                                 myCanvas.DrawCircle(paramsInt[0]);
@@ -255,9 +260,6 @@ namespace ase_simplelanguage
                 {
                     if (splitLine[1] == "=")
                     {
-                        if (splitLine.Length != 3)
-                            throw new ApplicationException("Invalid number of parameters for variable assignment");
-
                         string var = splitLine[0];
                         int val;
                         int tryParseInt;
@@ -273,8 +275,6 @@ namespace ase_simplelanguage
                             val = tryParseInt;
                         else
                             val = int.Parse(CheckVar(splitLine)[2]);
-
-                        
 
                         if (methodFlag)
                         {
@@ -297,8 +297,7 @@ namespace ase_simplelanguage
                             variables.Add(newVal);
                         }
                     }
-
-                    if (splitLine[0] == "if")
+                    else if (splitLine[0] == "if")
                     {
                         int removeCmd = line.IndexOf(" ") + 1;
                         string cond = line.Replace("(", " ").Replace(")", " ").Substring(removeCmd).Trim();
@@ -315,8 +314,7 @@ namespace ase_simplelanguage
                         }
                         else { throw new ApplicationException("Invalid if condition"); }
                     }
-
-                    if (splitLine[0] == "method")
+                    else if (splitLine[0] == "method")
                     {
                         int removeCmd = line.IndexOf(" ") + 1;
                         string method = line.Replace("(", "").Replace(")", "").Substring(removeCmd).Trim();
@@ -339,6 +337,10 @@ namespace ase_simplelanguage
 
                         executeFlag = false;
                     }
+                    else
+                    {
+                        throw new ApplicationException("Invalid command");
+                    }
                 }
             }
 
@@ -352,6 +354,20 @@ namespace ase_simplelanguage
                     kvp = localMethodVars;
                 else
                     kvp = variables;
+
+                string[] evalParams = parameters.Skip<string>(2).ToArray();
+                string[] operatorChars = "* / % + -".Split();
+
+                if (operatorChars.Any(x => evalParams.Contains(x)))
+                {
+                    string[] newEvalParams = CheckVar(evalParams);
+                    string toEval = string.Join("", newEvalParams);
+
+                    string evalResult = dt.Compute(toEval, "").ToString();
+                    parameters[2] = evalResult;
+
+                    parameters = parameters.Take(3).ToArray();
+                }
 
                 for (int i = 0; i < parameters.Length; i++)
                 {
